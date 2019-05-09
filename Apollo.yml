@@ -29,12 +29,12 @@ services:
         restart: always
         network_mode: "host"
         volumes:
-        - /mnt/hdd/recordings:/recordings
+        - $HOME/recordings/:/opt/vehicle-view/recordings
         - /var/run/docker.sock:/var/run/docker.sock
         environment:
         - OD4SESSION_CID=105
         - PLAYBACK_OD4SESSION_CID=205
-        - OPENDLV_VEHICLE_VIEW_PLATFORM=Voyager
+        - OPENDLV_VEHICLE_VIEW_PLATFORM=Snowfox
         ports:
         - "8081:8081"
         cap_add:
@@ -81,7 +81,7 @@ services:
         restart: always
         network_mode: "host"
         volumes:
-        - $HOME/recordings:/recordings
+        - $HOME/recordings/:/recordings
         working_dir: /recordings
         command: "--remote --recsuffix=-all --cid=106"
         runtime: runc
