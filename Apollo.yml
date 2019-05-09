@@ -139,3 +139,41 @@ services:
         entrypoint: ""
         command: "nice -n -7 /usr/bin/video-qsv-h264-encoder --name=ptg-left.i420 --width=2048 --height=1536 --bitrate=3000 --crop.x=704 --crop.y=500 --crop.width=640 --crop.height=480 --downsample=2 --cid=105 --id=1"
         runtime: runc
+
+    ###########################################################################
+    # Right PtGrey camera.
+    device-camera-ptgrey-amd64-right:
+        container_name: dlv-ptgrey-right
+        image: ptgrey:v2
+        #build:
+        #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
+        #    dockerfile: Dockerfile.amd64
+        cpuset: "9"
+        restart: always
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074539 --width=2048 --height=1536 --fps=15 --name.i420=ptg-right.i420 --name.argb=ptg-right.argb"
+
+    qsv-h264-thumbnail-ptgrey-right:
+        container_name: qsv-h264-thumbnail-ptgrey-right
+        image: qsv:latest
+        depends_on:
+        - device-camera-ptgrey-amd64-right
+        cpuset: "10"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-h264-encoder --name=ptg-right.i420 --width=2048 --height=1536 --bitrate=3000 --crop.x=704 --crop.y=500 --crop.width=640 --crop.height=480 --downsample=2 --cid=105 --id=2"
+        runtime: runc
