@@ -14,7 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# Date: 2019-03-24
+# Date: 2019-05-16
 
 version: '2.3'
 
@@ -99,7 +99,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --cid=106 --can=can2"
+        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --cid=106 --can=can0"
         runtime: runc
 
     ###########################################################################
