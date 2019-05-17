@@ -193,12 +193,37 @@ services:
         ipc: "host"
         network_mode: "host"
         volumes:
-        - /tmp:/tmp
+        - /mnt/sdb1/data:/tmp
         - $HOME/recordings:/recordings
         working_dir: /recordings
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg --width=1280 --height=720 --name.i420=axis0.i420 --name.argb=axis0.argb --remote --recsuffix=-axis0-jpeg --skip.argb --skip.i420 --cid=102 --id=0"
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg --width=1280 --height=720 --name.i420=axis0.i420 --name.argb=axis0.argb --remote --recsuffix=-axis0-jpeg --skip.argb --cid=102 --id=0"
         runtime: runc
 
+    i420toolbox:
+        container_name: i420toolbox
+        image: chalmersrevere/i420toolbox-multi:v0.0.2
+        restart: always
+        depends_on:
+        - dev-camera-axis0
+        ipc: "host"
+        volumes:
+        - /mnt/sdb1/data:/tmp
+        command: "--in=axis0.i420 --in.width=1280 --in.height=720 --crop.x=320 --crop.y=120 --crop.width=640 --crop.height=480 --out=axisds0.i420"
+
+    video-h264-encoder-amd64:
+        container_name: h264enc
+        build:
+            context: https://github.com/chalmers-revere/opendlv-video-h264-encoder.git
+            dockerfile: Dockerfile.amd64
+        restart: always
+        depends_on:
+        - dev-camera-axis0
+        - i420toolbox
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/sdb1/data:/tmp
+        command: "--cid=101 --name=axisds0.i420 --width=640 --height=480"
