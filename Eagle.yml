@@ -205,6 +205,7 @@ services:
     i420toolbox:
         container_name: i420toolbox
         image: chalmersrevere/i420toolbox-multi:v0.0.2
+        cpuset: "2"
         restart: always
         depends_on:
         - dev-camera-axis0
@@ -216,9 +217,10 @@ services:
     video-h264-encoder-amd64:
         container_name: h264enc
         build:
-            context: https://github.com/chalmers-revere/opendlv-video-h264-encoder.git
+            context: https://github.com/chalmers-revere/opendlv-video-h264-encoder.git#v0.0.2
             dockerfile: Dockerfile.amd64
         restart: always
+        cpuset: "2"
         depends_on:
         - dev-camera-axis0
         - i420toolbox
@@ -226,4 +228,4 @@ services:
         ipc: "host"
         volumes:
         - /mnt/sdb1/data:/tmp
-        command: "--cid=101 --name=axisds0.i420 --width=640 --height=480"
+        command: "--cid=101 --name=axisds0.i420 --width=640 --height=480 --bitrate=4895294 --bitrate_max=5000000 --gop=1 --rc_mode=1 --ecomplexity=2 --sps_pps_strategy=6 --num_ref_frame=11 --ssei=1 --prefix_nal=1 --entropy_coding=0 --frame_skip=0 --qp_max=38 --qp_min=17 --long_term_ref=0 --loop_filter=0 --denoise=1 --background_detection=0 --adaptive_quant=0 --frame_cropping=1 --scene_change_detect=1 --padding=1"
