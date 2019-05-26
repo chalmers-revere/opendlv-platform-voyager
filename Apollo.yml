@@ -148,7 +148,7 @@ services:
     # Left PtGrey camera.
     device-camera-ptgrey-amd64-left:
         container_name: dlv-ptgrey-left
-        image: ptgrey:v2
+        image: ptgrey:v3
         #build:
         #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
         #    dockerfile: Dockerfile.amd64
@@ -161,7 +161,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074537 --width=2048 --height=1536 --fps=15 --name.i420=ptg-left.i420 --name.argb=ptg-left.argb"
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074537 --width=2048 --height=1536 --fps=15 --name.i420=ptg-left.i420 --name.argb=ptg-left.argb --nocameratimestamp"
 
     qsv-h264-thumbnail-ptgrey-left:
         container_name: qsv-h264-thumbnail-ptgrey-left
@@ -202,11 +202,30 @@ services:
         command: "--name=ptg-left.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-left-lossless --remote --cid=106 --id=1"
         runtime: nvidia
 
+    qsv-vp9-ptgrey-left:
+        container_name: qsv-vp9-left
+        image: qsv-vp9:v0.0.1
+        depends_on:
+        - device-camera-ptgrey-amd64-left
+        cpuset: "8"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-vp9-encoder --name=ptg-left.i420 --width=2048 --height=1536 --gop=127 --bitrate=3216 --ip-period=17 --init-qp=41 --qpmin=3 --qpmax=4 --disable-frame-skip=1 --diff-qp-ip=48 --diff-qp-ib=28 --num-ref-frame=9 --rc-mode=1 --reference-mode=0 --cid=106 --id=3"
+        runtime: runc
+
     ###########################################################################
     # Right PtGrey camera.
     device-camera-ptgrey-amd64-right:
         container_name: dlv-ptgrey-right
-        image: ptgrey:v2
+        image: ptgrey:v3
         #build:
         #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
         #    dockerfile: Dockerfile.amd64
@@ -219,7 +238,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074539 --width=2048 --height=1536 --fps=15 --name.i420=ptg-right.i420 --name.argb=ptg-right.argb"
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074539 --width=2048 --height=1536 --fps=15 --name.i420=ptg-right.i420 --name.argb=ptg-right.argb --nocameratimestamp"
 
     qsv-h264-thumbnail-ptgrey-right:
         container_name: qsv-h264-thumbnail-ptgrey-right
@@ -259,3 +278,23 @@ services:
         working_dir: /recordings
         command: "--name=ptg-right.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-right-lossless --remote --cid=106 --id=2"
         runtime: nvidia
+
+    qsv-vp9-ptgrey-right:
+        container_name: qsv-vp9-right
+        image: qsv-vp9:v0.0.1
+        depends_on:
+        - device-camera-ptgrey-amd64-right
+        cpuset: "12"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-vp9-encoder --name=ptg-right.i420 --width=2048 --height=1536 --gop=127 --bitrate=3216 --ip-period=17 --init-qp=41 --qpmin=3 --qpmax=4 --disable-frame-skip=1 --diff-qp-ip=48 --diff-qp-ib=28 --num-ref-frame=9 --rc-mode=1 --reference-mode=0 --cid=106 --id=4"
+        runtime: runc
+
