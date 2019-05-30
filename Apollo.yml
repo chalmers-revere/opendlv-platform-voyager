@@ -104,47 +104,6 @@ services:
 
 
     ###########################################################################
-    # Raw CAN interfaces to the truck.
-    dlv-can-raw-1:
-        container_name: dlv-can-raw-1
-        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "4"
-        restart: always
-        network_mode: "host"
-        privileged: true
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can1 --cid=106 --id=1"
-        runtime: runc
-
-    dlv-can-raw-2:
-        container_name: dlv-can-raw-2
-        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "4"
-        restart: always
-        network_mode: "host"
-        privileged: true
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can2 --cid=106 --id=2"
-        runtime: runc
-
-    dlv-can-raw-3:
-        container_name: dlv-can-raw-3
-        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "4"
-        restart: always
-        network_mode: "host"
-        privileged: true
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can3 --cid=106 --id=3"
-        runtime: runc
-
-    ###########################################################################
     # Left PtGrey camera.
     device-camera-ptgrey-amd64-left:
         container_name: dlv-ptgrey-left
