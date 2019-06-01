@@ -29,7 +29,7 @@ services:
         restart: always
         network_mode: "host"
         volumes:
-        - $HOME/recordings:/opt/vehicle-view/recordings
+        - $HOME/recordings/lossy:/opt/vehicle-view/recordings
         - /var/run/docker.sock:/var/run/docker.sock
         environment:
         - OD4SESSION_CID=101
@@ -80,7 +80,7 @@ services:
         restart: always
         network_mode: "host"
         volumes:
-        - $HOME/recordings:/recordings
+        - $HOME/recordings/upload:/recordings
         working_dir: /recordings
         command: "--remote --recsuffix=-all --cid=102"
         runtime: runc
@@ -194,7 +194,7 @@ services:
         network_mode: "host"
         volumes:
         - /mnt/sdb1/data:/tmp
-        - $HOME/recordings:/recordings
+        - $HOME/recordings/lossless:/recordings
         working_dir: /recordings
         cap_add:
         - SYS_NICE
