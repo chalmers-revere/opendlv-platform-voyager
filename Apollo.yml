@@ -29,7 +29,7 @@ services:
         restart: always
         network_mode: "host"
         volumes:
-        - $HOME/recordings/:/opt/vehicle-view/recordings
+        - $HOME/recordings/lossy:/opt/vehicle-view/recordings
         - /var/run/docker.sock:/var/run/docker.sock
         environment:
         - OD4SESSION_CID=105
@@ -81,7 +81,7 @@ services:
         restart: always
         network_mode: "host"
         volumes:
-        - $HOME/recordings/:/recordings
+        - $HOME/recordings/upload:/recordings
         working_dir: /recordings
         command: "--remote --recsuffix=-all --cid=106"
         runtime: runc
@@ -113,7 +113,7 @@ services:
         network_mode: "host"
         volumes:
         - /mnt/Volume1/data:/tmp
-        - $HOME/recordings:/recordings
+        - $HOME/recordings/lossless:/recordings
         working_dir: /recordings
         cap_add:
         - SYS_NICE
@@ -201,12 +201,32 @@ services:
         network_mode: "host"
         volumes:
         - /mnt/Volume1/data:/tmp
-        - $HOME/recordings:/recordings
+        - $HOME/recordings/lossless:/recordings
         - /usr/lib64/libnvcuvid.so.418.56:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.418.56
         - /usr/lib64/libnvidia-encode.so.418.56:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.418.56
         working_dir: /recordings
         command: "--name=ptg-left.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-left-lossless --remote --cid=106 --id=1"
         runtime: nvidia
+
+    qsv-vp9-ptgrey-left:
+        container_name: qsv-vp9-left
+        image: qsv-vp9:v0.0.1
+        depends_on:
+        - device-camera-ptgrey-amd64-left
+        cpuset: "8"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-vp9-encoder --name=ptg-left.i420 --width=2048 --height=1536 --gop=127 --bitrate=3216 --ip-period=17 --init-qp=41 --qpmin=3 --qpmax=4 --disable-frame-skip=1 --diff-qp-ip=48 --diff-qp-ib=28 --num-ref-frame=9 --rc-mode=1 --reference-mode=0 --cid=106 --id=3"
+        runtime: runc
+
 
     ###########################################################################
     # Right PtGrey camera.
@@ -259,10 +279,29 @@ services:
         network_mode: "host"
         volumes:
         - /mnt/Volume1/data:/tmp
-        - $HOME/recordings:/recordings
+        - $HOME/recordings/lossless:/recordings
         - /usr/lib64/libnvcuvid.so.418.56:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.418.56
         - /usr/lib64/libnvidia-encode.so.418.56:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.418.56
         working_dir: /recordings
         command: "--name=ptg-right.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-right-lossless --remote --cid=106 --id=2"
         runtime: nvidia
+
+    qsv-vp9-ptgrey-right:
+        container_name: qsv-vp9-right
+        image: qsv-vp9:v0.0.1
+        depends_on:
+        - device-camera-ptgrey-amd64-right
+        cpuset: "12"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-vp9-encoder --name=ptg-right.i420 --width=2048 --height=1536 --gop=127 --bitrate=3216 --ip-period=17 --init-qp=41 --qpmin=3 --qpmax=4 --disable-frame-skip=1 --diff-qp-ip=48 --diff-qp-ib=28 --num-ref-frame=9 --rc-mode=1 --reference-mode=0 --cid=106 --id=4"
+        runtime: runc
 
