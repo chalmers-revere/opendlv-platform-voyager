@@ -149,14 +149,12 @@ services:
         - /mnt/Volume1/data:/tmp
         command: "--name=axisds0.i420 --width=640 --height=480 --bitrate=4895294 --bitrate_max=5000000 --gop=1 --rc_mode=1 --ecomplexity=2 --sps_pps_strategy=6 --num_ref_frame=11 --ssei=1 --prefix_nal=1 --entropy_coding=0 --frame_skip=0 --qp_max=38 --qp_min=17 --long_term_ref=0 --loop_filter=0 --denoise=1 --background_detection=0 --adaptive_quant=0 --frame_cropping=1 --scene_change_detect=1 --padding=1 --cid=105 --id=0"
 
-    qsv-vp9-axis0:
-        container_name: qsv-vp9-axis0
-        image: qsv-vp9:v0.0.1
+    vp9-axis0:
+        container_name: vp9-axis0
+        image: vp9:v0.0.7
         depends_on:
         - dev-camera-axis0
-        cpuset: "6"
-        devices:
-        - /dev/dri/renderD128
+        cpuset: "5"
         restart: always
         ipc: "host"
         network_mode: "host"
@@ -165,9 +163,8 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -7 /usr/bin/video-qsv-vp9-encoder --name=axis0.i420 --width=1280 --height=720 --gop=127 --bitrate=3216 --ip-period=17 --init-qp=41 --qpmin=3 --qpmax=4 --disable-frame-skip=1 --diff-qp-ip=48 --diff-qp-ib=28 --num-ref-frame=9 --rc-mode=1 --reference-mode=0 --cid=106 --id=3"
+        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=axis0.i420 --width=1280 --height=720 --vp9 --gop=215 --drop_frame=23 --resize_allowed=0 --resize_up=27 --resize_down=73 --undershoot_pct=90 --overshoot_pct=64 --min_q=28 --end_usage=0 --buffer_size=2299 --buffer_init_size=1455 --buffer_optimal_size=3708 --bitrate=3641195 --kf_mode=0 --kf_min_dist=1 --kf_max_dist=104 --cpu_used=7 --cid=106 --id=3 --verbose"
         runtime: runc
-
 
     ###########################################################################
     # Left PtGrey camera.
