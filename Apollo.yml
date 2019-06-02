@@ -163,8 +163,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=axis0.i420 --width=1280 --height=720 --vp9 --gop=215 --drop_frame=23 --resize_allowed=0 --resize_up=27 --resize_down=73 --undershoot_pct=90 --overshoot_pct=64 --min_q=28 --end_usage=0 --buffer_size=2299 --buffer_init_size=1455 --buffer_optimal_size=3708 --bitrate=3641195 --kf_mode=0 --kf_min_dist=1 --kf_max_dist=104 --cpu_used=7 --cid=106 --id=3"
-        runtime: runc
+        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=axis0.i420 --width=1280 --height=720 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=3 --verbose"
 
     ###########################################################################
     # Left PtGrey camera.
