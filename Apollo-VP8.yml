@@ -119,6 +119,26 @@ services:
         command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg\\&compression=0 --width=1280 --height=720 --name.i420=axis0.i420 --name.argb=axis0.argb --remote --recsuffix=-axis0-jpeg --skip.argb --cid=106 --id=0"
         runtime: runc
 
+    qsv-h264-thumbnail-axis0:
+        container_name: qsv-h264-thumbnail-axis0
+        image: qsv-h264:v0.0.1
+        depends_on:
+        - dev-camera-axis0
+        cpuset: "4"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /usr/lib64/dri/i965_drv_video.so:/usr/lib/x86_64-linux-gnu/dri/i965_drv_video.so
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-h264-encoder --name=axis0.i420 --width=1280 --height=720 --id=0 --bitrate=3000 --crop.x=320 --crop.y=120 --crop.width=640 --crop.height=480 --downsample=6 --cid=105 --id=0"
+        runtime: runc
+
     vp8-axis0:
         container_name: vp8-axis0
         image: vp9:v0.0.7
