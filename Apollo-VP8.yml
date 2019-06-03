@@ -149,8 +149,8 @@ services:
         command: "--name=axisds0.i420 --width=640 --height=480 --bitrate=4895294 --bitrate_max=5000000 --gop=1 --rc_mode=1 --ecomplexity=2 --sps_pps_strategy=6 --num_ref_frame=11 --ssei=1 --prefix_nal=1 --entropy_coding=0 --frame_skip=0 --qp_max=38 --qp_min=17 --long_term_ref=0 --loop_filter=0 --denoise=1 --background_detection=0 --adaptive_quant=0 --frame_cropping=1 --scene_change_detect=1 --padding=1 --cid=105 --id=0"
         runtime: runc
 
-    vp9-axis0:
-        container_name: vp9-axis0
+    vp8-axis0:
+        container_name: vp8-axis0
         image: vp9:v0.0.7
         depends_on:
         - dev-camera-axis0
@@ -163,7 +163,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=axis0.i420 --width=1280 --height=720 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=3 --verbose"
+        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=axis0.i420 --width=1280 --height=720 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=3"
         runtime: runc
 
     ###########################################################################
@@ -198,6 +198,7 @@ services:
         ipc: "host"
         network_mode: "host"
         volumes:
+        - /usr/lib64/dri/i965_drv_video.so:/usr/lib/x86_64-linux-gnu/dri/i965_drv_video.so
         - /mnt/Volume1/data:/tmp
         cap_add:
         - SYS_NICE
@@ -225,8 +226,8 @@ services:
         command: "--name=ptg-left.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-left-lossless --remote --cid=106 --id=1"
         runtime: nvidia
 
-    vp9-ptgrey-left:
-        container_name: vp9-ptgrey-left
+    vp8-ptgrey-left:
+        container_name: vp8-ptgrey-left
         image: vp9:v0.0.7
         depends_on:
         - device-camera-ptgrey-amd64-left
@@ -239,7 +240,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=ptg-left.i420 --width=2048 --height=1536 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=4 --verbose"
+        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=ptg-left.i420 --width=2048 --height=1536 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=4"
         runtime: runc
 
     ###########################################################################
@@ -274,6 +275,7 @@ services:
         ipc: "host"
         network_mode: "host"
         volumes:
+        - /usr/lib64/dri/i965_drv_video.so:/usr/lib/x86_64-linux-gnu/dri/i965_drv_video.so
         - /mnt/Volume1/data:/tmp
         cap_add:
         - SYS_NICE
@@ -301,8 +303,8 @@ services:
         command: "--name=ptg-right.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-right-lossless --remote --cid=106 --id=2"
         runtime: nvidia
 
-    vp9-ptgrey-right:
-        container_name: vp9-ptgrey-right
+    vp8-ptgrey-right:
+        container_name: vp8-ptgrey-right
         image: vp9:v0.0.7
         depends_on:
         - device-camera-ptgrey-amd64-right
@@ -315,5 +317,5 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=ptg-right.i420 --width=2048 --height=1536 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=5 --verbose"
+        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=ptg-right.i420 --width=2048 --height=1536 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=5"
         runtime: runc
