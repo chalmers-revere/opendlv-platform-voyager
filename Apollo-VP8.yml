@@ -105,7 +105,7 @@ services:
     dev-camera-axis0:
         container_name: dev-camera-axis0
         image: chalmersrevere/opendlv-device-camera-mjpegoverhttp-multi:v0.0.3
-        cpuset: "6"
+        cpuset: "4"
         restart: always
         ipc: "host"
         network_mode: "host"
@@ -122,7 +122,7 @@ services:
     i420toolbox:
         container_name: i420toolbox
         image: chalmersrevere/i420toolbox-multi:v0.0.2
-        cpuset: "6"
+        cpuset: "4"
         restart: always
         depends_on:
         - dev-camera-axis0
@@ -138,7 +138,7 @@ services:
             context: https://github.com/chalmers-revere/opendlv-video-h264-encoder.git#v0.0.2
             dockerfile: Dockerfile.amd64
         restart: always
-        cpuset: "6"
+        cpuset: "4"
         depends_on:
         - dev-camera-axis0
         - i420toolbox
@@ -174,7 +174,7 @@ services:
         #build:
         #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
         #    dockerfile: Dockerfile.amd64
-        cpuset: "7"
+        cpuset: "6,7,8"
         restart: always
         network_mode: "host"
         ipc: "host"
@@ -191,7 +191,7 @@ services:
         image: qsv:latest
         depends_on:
         - device-camera-ptgrey-amd64-left
-        cpuset: "8"
+        cpuset: "6,7,8"
         devices:
         - /dev/dri/renderD128
         restart: always
@@ -212,7 +212,7 @@ services:
         image: nvenc-h264:v2
         depends_on:
         - device-camera-ptgrey-amd64-left
-        cpuset: "9"
+        cpuset: "6,7,8"
         init: true
         restart: always
         ipc: "host"
@@ -231,7 +231,7 @@ services:
         image: vp9:v0.0.7
         depends_on:
         - device-camera-ptgrey-amd64-left
-        cpuset: "8"
+        cpuset: "9,10"
         restart: always
         ipc: "host"
         network_mode: "host"
@@ -251,7 +251,7 @@ services:
         #build:
         #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
         #    dockerfile: Dockerfile.amd64
-        cpuset: "10"
+        cpuset: "11,12,13"
         restart: always
         network_mode: "host"
         ipc: "host"
@@ -268,7 +268,7 @@ services:
         image: qsv:latest
         depends_on:
         - device-camera-ptgrey-amd64-right
-        cpuset: "11"
+        cpuset: "11,12,13"
         devices:
         - /dev/dri/renderD128
         restart: always
@@ -289,7 +289,7 @@ services:
         image: nvenc-h264:v2
         depends_on:
         - device-camera-ptgrey-amd64-right
-        cpuset: "12"
+        cpuset: "11,12,13"
         init: true
         restart: always
         ipc: "host"
@@ -308,7 +308,7 @@ services:
         image: vp9:v0.0.7
         depends_on:
         - device-camera-ptgrey-amd64-right
-        cpuset: "11"
+        cpuset: "14,15"
         restart: always
         ipc: "host"
         network_mode: "host"
