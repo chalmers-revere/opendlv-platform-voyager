@@ -1,0 +1,241 @@
+# Copyright (C) 2019 Christian Berger
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+# Date: 2019-06-04
+
+version: '2.3'
+
+# These services run on Apollo (Intel Core).
+services:
+    ###########################################################################
+    # Relay cluon.data.RecorderCommand.
+    relay-recordercommand-105-106:
+        container_name: relay-recordercommand-105-106
+        image: chrberger/cluon-relay-multi:v0.0.4
+        cpuset: "2"
+        restart: always
+        network_mode: "host"
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/cluon-relay --cid-from=105 --cid-to=106 --keep=11"
+        runtime: runc
+
+    ###########################################################################
+    # Dump all containers from CID 106 on request.
+    record-106:
+        container_name: record-106
+        image: chrberger/cluon-record-multi:v0.0.1
+        cpuset: "2"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - $HOME/recordings/upload:/recordings
+        working_dir: /recordings
+        command: "--remote --recsuffix=-all --cid=106"
+        runtime: runc
+
+    ###########################################################################
+    # CAN interface to receive GPS/IMU data.
+    dlv-can-peak:
+        container_name: dlv-can-peak
+        image: chalmersrevere/opendlv-device-gps-peak-multi:v0.0.8
+        cpuset: "1,3"
+        restart: always
+        network_mode: "host"
+        privileged: true
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --cid=106 --can=can0"
+        runtime: runc
+
+    ###########################################################################
+    # Raw CAN interfaces to the truck.
+    dlv-can-raw-1:
+        container_name: dlv-can-raw-1
+        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
+        cpuset: "1,3"
+        restart: always
+        network_mode: "host"
+        privileged: true
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can1 --cid=106 --id=1"
+        runtime: runc
+
+    dlv-can-raw-2:
+        container_name: dlv-can-raw-2
+        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
+        cpuset: "1,3"
+        restart: always
+        network_mode: "host"
+        privileged: true
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can2 --cid=106 --id=2"
+        runtime: runc
+
+    dlv-can-raw-3:
+        container_name: dlv-can-raw-3
+        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
+        cpuset: "1,3"
+        restart: always
+        network_mode: "host"
+        privileged: true
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can3 --cid=106 --id=3"
+        runtime: runc
+
+    ###########################################################################
+    # Axis camera including recording functionality with remote start/stop.
+    dev-camera-axis0:
+        container_name: dev-camera-axis0
+        image: chalmersrevere/opendlv-device-camera-mjpegoverhttp-multi:v0.0.3
+        cpuset: "4"
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        - $HOME/recordings/lossless:/recordings
+        working_dir: /recordings
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg\\&compression=0 --width=1280 --height=720 --name.i420=axis0.i420 --name.argb=axis0.argb --remote --recsuffix=-axis0-jpeg --skip.argb --cid=106 --id=0"
+        runtime: runc
+
+    qsv-h264-thumbnail-axis0:
+        container_name: qsv-h264-thumbnail-axis0
+        image: qsv-h264:v0.0.1
+        depends_on:
+        - dev-camera-axis0
+        cpuset: "4"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /usr/lib64/dri/i965_drv_video.so:/usr/lib/x86_64-linux-gnu/dri/i965_drv_video.so
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-h264-encoder --name=axis0.i420 --width=1280 --height=720 --id=0 --bitrate=3000 --crop.x=320 --crop.y=120 --crop.width=640 --crop.height=480 --downsample=6 --cid=105 --id=0"
+        runtime: runc
+
+    vp8-axis0:
+        container_name: vp8-axis0
+        image: vp9:v0.0.7
+        depends_on:
+        - dev-camera-axis0
+        cpuset: "5"
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=axis0.i420 --width=1280 --height=720 --vp8 --gop=100 --cpu_used=6 --bitrate=600000 --cid=106 --id=3"
+        runtime: runc
+
+    ###########################################################################
+    # Left PtGrey camera.
+    device-camera-ptgrey-amd64-left:
+        container_name: dlv-ptgrey-left
+        image: ptgrey:v4
+        #build:
+        #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
+        #    dockerfile: Dockerfile.amd64
+        cpuset: "6,7,8"
+        restart: always
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074537 --width=2048 --height=1536 --fps=15 --name.i420=ptg-left.i420 --name.argb=ptg-left.argb --skip.argb --nocameratimestamp"
+        runtime: runc
+
+    nvenc-h264-ll-rec-ptgrey-left:
+        container_name: nvenc-h264-ll-rec-ptgrey-left
+        #image: chrberger/video-nvenc-h264-recorder-amd64:cuda10-v0.0.2
+        image: nvenc-h264:v2
+        depends_on:
+        - device-camera-ptgrey-amd64-left
+        cpuset: "6,7,8"
+        init: true
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        - $HOME/recordings/lossless:/recordings
+        - /usr/lib64/libnvcuvid.so.418.56:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.418.56
+        - /usr/lib64/libnvidia-encode.so.418.56:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.418.56
+        working_dir: /recordings
+        command: "--name=ptg-left.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-left-lossless --remote --cid=106 --id=1"
+        runtime: nvidia
+
+    ###########################################################################
+    # Right PtGrey camera.
+    device-camera-ptgrey-amd64-right:
+        container_name: dlv-ptgrey-right
+        image: ptgrey:v4
+        #build:
+        #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
+        #    dockerfile: Dockerfile.amd64
+        cpuset: "11,12,13"
+        restart: always
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074539 --width=2048 --height=1536 --fps=15 --name.i420=ptg-right.i420 --name.argb=ptg-right.argb --skip.argb --nocameratimestamp"
+        runtime: runc
+
+    nvenc-h264-ll-rec-ptgrey-right:
+        container_name: nvenc-h264-ll-rec-ptgrey-right
+        #image: chrberger/video-nvenc-h264-recorder-amd64:cuda10-v0.0.2
+        image: nvenc-h264:v2
+        depends_on:
+        - device-camera-ptgrey-amd64-right
+        cpuset: "11,12,13"
+        init: true
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        - $HOME/recordings/lossless:/recordings
+        - /usr/lib64/libnvcuvid.so.418.56:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.418.56
+        - /usr/lib64/libnvidia-encode.so.418.56:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.418.56
+        working_dir: /recordings
+        command: "--name=ptg-right.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-right-lossless --remote --cid=106 --id=2"
+        runtime: nvidia
