@@ -25,7 +25,7 @@ services:
     vehicle-view:
         container_name: opendlv-vehicle-view
         image: chalmersrevere/opendlv-vehicle-view-multi:v0.0.60
-        cpuset: "1"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         volumes:
@@ -48,7 +48,7 @@ services:
     relay-downsample-102-101:
         container_name: relay-downsample-102-101
         image: chrberger/cluon-relay-multi:v0.0.4
-        cpuset: "1"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         cap_add:
@@ -62,7 +62,7 @@ services:
     relay-recordercommand-101-102:
         container_name: relay-recordercommand-101-102
         image: chrberger/cluon-relay-multi:v0.0.4
-        cpuset: "1"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         cap_add:
@@ -76,7 +76,7 @@ services:
     record-102:
         container_name: record-102
         image: chrberger/cluon-record-multi:v0.0.1
-        cpuset: "1"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         volumes:
@@ -91,7 +91,7 @@ services:
     dlv-can-peak:
         container_name: dlv-can-peak
         image: chalmersrevere/opendlv-device-gps-peak-multi:v0.0.8
-        cpuset: "1"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         privileged: true
@@ -107,7 +107,7 @@ services:
     dlv-can-raw-1:
         container_name: dlv-can-raw-1
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "2"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         privileged: true
@@ -120,7 +120,7 @@ services:
     dlv-can-raw-2:
         container_name: dlv-can-raw-2
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "2"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         privileged: true
@@ -133,7 +133,7 @@ services:
     dlv-can-raw-3:
         container_name: dlv-can-raw-3
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "2"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         privileged: true
@@ -146,7 +146,7 @@ services:
     dlv-can-raw-4:
         container_name: dlv-can-raw-4
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "2"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         privileged: true
@@ -159,7 +159,7 @@ services:
     dlv-can-raw-5:
         container_name: dlv-can-raw-5
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "2"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         privileged: true
@@ -172,7 +172,7 @@ services:
     dlv-can-raw-6:
         container_name: dlv-can-raw-6
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "2"
+        cpuset: "0,1,2,3"
         restart: always
         network_mode: "host"
         privileged: true
