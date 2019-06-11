@@ -25,7 +25,7 @@ services:
     vehicle-view:
         container_name: opendlv-vehicle-view
         image: chalmersrevere/opendlv-vehicle-view-multi:v0.0.60
-        cpuset: "0,1,2,3"
+        cpuset: "1"
         restart: always
         network_mode: "host"
         volumes:
@@ -48,7 +48,7 @@ services:
     relay-downsample-102-101:
         container_name: relay-downsample-102-101
         image: chrberger/cluon-relay-multi:v0.0.4
-        cpuset: "0,1,2,3"
+        cpuset: "1"
         restart: always
         network_mode: "host"
         cap_add:
@@ -62,7 +62,7 @@ services:
     relay-recordercommand-101-102:
         container_name: relay-recordercommand-101-102
         image: chrberger/cluon-relay-multi:v0.0.4
-        cpuset: "0,1,2,3"
+        cpuset: "1"
         restart: always
         network_mode: "host"
         cap_add:
@@ -76,7 +76,7 @@ services:
     record-102:
         container_name: record-102
         image: chrberger/cluon-record-multi:v0.0.1
-        cpuset: "0,1,2,3"
+        cpuset: "1"
         restart: always
         network_mode: "host"
         volumes:
@@ -91,7 +91,7 @@ services:
     dlv-can-peak:
         container_name: dlv-can-peak
         image: chalmersrevere/opendlv-device-gps-peak-multi:v0.0.8
-        cpuset: "0,1,2,3"
+        cpuset: "1"
         restart: always
         network_mode: "host"
         privileged: true
@@ -107,7 +107,7 @@ services:
     dlv-can-raw-1:
         container_name: dlv-can-raw-1
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "0,1,2,3"
+        cpuset: "2"
         restart: always
         network_mode: "host"
         privileged: true
@@ -120,7 +120,7 @@ services:
     dlv-can-raw-2:
         container_name: dlv-can-raw-2
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "0,1,2,3"
+        cpuset: "2"
         restart: always
         network_mode: "host"
         privileged: true
@@ -133,7 +133,7 @@ services:
     dlv-can-raw-3:
         container_name: dlv-can-raw-3
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "0,1,2,3"
+        cpuset: "2"
         restart: always
         network_mode: "host"
         privileged: true
@@ -146,7 +146,7 @@ services:
     dlv-can-raw-4:
         container_name: dlv-can-raw-4
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "0,1,2,3"
+        cpuset: "2"
         restart: always
         network_mode: "host"
         privileged: true
@@ -159,7 +159,7 @@ services:
     dlv-can-raw-5:
         container_name: dlv-can-raw-5
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "0,1,2,3"
+        cpuset: "2"
         restart: always
         network_mode: "host"
         privileged: true
@@ -172,7 +172,7 @@ services:
     dlv-can-raw-6:
         container_name: dlv-can-raw-6
         image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "0,1,2,3"
+        cpuset: "2"
         restart: always
         network_mode: "host"
         privileged: true
@@ -181,3 +181,51 @@ services:
         entrypoint: ""
         command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can6 --cid=102 --id=6"
         runtime: runc
+
+
+    ###########################################################################
+    # Axis camera including recording functionality with remote start/stop.
+    dev-camera-axis0:
+        container_name: dev-camera-axis0
+        image: chalmersrevere/opendlv-device-camera-mjpegoverhttp-multi:v0.0.3
+        cpuset: "3"
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data:/tmp
+        - $HOME/recordings/lossless:/recordings
+        working_dir: /recordings
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg\\&compression=0 --width=1280 --height=720 --name.i420=axis0.i420 --name.argb=axis0.argb --remote --recsuffix=-axis0-jpeg --skip.argb --cid=102 --id=0"
+        runtime: runc
+
+    i420toolbox:
+        container_name: i420toolbox
+        image: chalmersrevere/i420toolbox-multi:v0.0.2
+        cpuset: "2"
+        restart: always
+        depends_on:
+        - dev-camera-axis0
+        ipc: "host"
+        volumes:
+        - /mnt/sdb1/data:/tmp
+        command: "--in=axis0.i420 --in.width=1280 --in.height=720 --crop.x=320 --crop.y=120 --crop.width=640 --crop.height=480 --out=axisds0.i420"
+
+    video-h264-encoder-amd64:
+        container_name: h264enc
+        build:
+            context: https://github.com/chalmers-revere/opendlv-video-h264-encoder.git#v0.0.2
+            dockerfile: Dockerfile.amd64
+        restart: always
+        cpuset: "2"
+        depends_on:
+        - dev-camera-axis0
+        - i420toolbox
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/sdb1/data:/tmp
+        command: "--cid=101 --name=axisds0.i420 --width=640 --height=480 --bitrate=4895294 --bitrate_max=5000000 --gop=1 --rc_mode=1 --ecomplexity=2 --sps_pps_strategy=6 --num_ref_frame=11 --ssei=1 --prefix_nal=1 --entropy_coding=0 --frame_skip=0 --qp_max=38 --qp_min=17 --long_term_ref=0 --loop_filter=0 --denoise=1 --background_detection=0 --adaptive_quant=0 --frame_cropping=1 --scene_change_detect=1 --padding=1"
