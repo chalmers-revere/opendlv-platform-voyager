@@ -1,0 +1,66 @@
+# Copyright (C) 2019 Christian Berger
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+# Date: 2019-06-11
+
+version: '2.3'
+
+# These services run on Eagle (AMD APU).
+services:
+    ###########################################################################
+    # Dump all containers from CID 102 on request.
+    record-102:
+        container_name: record-102
+        image: chrberger/cluon-record-multi:v0.0.1
+        cpuset: "1"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - $HOME/recordings/upload:/recordings
+        working_dir: /recordings
+        command: "--remote --recsuffix=-all --cid=102"
+        runtime: runc
+
+
+    ###########################################################################
+    # CAN interface to receive GPS/IMU data.
+    dlv-can-peak:
+        container_name: dlv-can-peak
+        image: chalmersrevere/opendlv-device-gps-peak-multi:v0.0.8
+        cpuset: "1"
+        restart: always
+        network_mode: "host"
+        privileged: true
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --can=can0 --cid=102 --id=0"
+        runtime: runc
+
+
+    ###########################################################################
+    # Axis camera including recording functionality with remote start/stop.
+    dev-camera-axis0:
+        container_name: dev-camera-axis0
+        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.2
+        cpuset: "3"
+        restart: always
+        ipc: "host"
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data:/tmp
+        command: "--url=rtsp://10.40.41.2:554/axis-media/media.amp\\?camera=1 --cid=102 --id=0 --client-port-udp-a=35000"
+        runtime: runc
