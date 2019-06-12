@@ -55,12 +55,32 @@ services:
     # Axis camera including recording functionality with remote start/stop.
     dev-camera-axis0:
         container_name: dev-camera-axis0
-        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.2
+        image: chalmersrevere/opendlv-device-camera-mjpegoverhttp-multi:v0.0.3
         cpuset: "3"
         restart: always
         ipc: "host"
         network_mode: "host"
         volumes:
         - /mnt/sdb1/data:/tmp
-        command: "--url=rtsp://10.40.41.2:554/axis-media/media.amp\\?camera=1 --cid=102 --id=0 --client-port-udp-a=35000"
+        - $HOME/recordings/lossless:/recordings
+        working_dir: /recordings
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg\\&compression=0 --width=640 --height=480 --name.i420=axis0.i420 --name.argb=axis0.argb --skip.argb --remote --cid=77" # be on wrong CID to avoid recording
         runtime: runc
+
+    video-h264-encoder-amd64:
+        container_name: h264enc
+        build:
+            context: https://github.com/chalmers-revere/opendlv-video-h264-encoder.git#v0.0.2
+            dockerfile: Dockerfile.amd64
+        restart: always
+        cpuset: "2"
+        depends_on:
+        - dev-camera-axis0
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/sdb1/data:/tmp
+        command: "--name=axis0.i420 --width=640 --height=480 --bitrate=4500000 --gop=10 --cid=102 --id=0"
