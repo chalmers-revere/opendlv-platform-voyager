@@ -67,7 +67,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg\\&compression=0 --width=640 --height=480 --name.i420=axis0.i420 --name.argb=axis0.argb --skip.argb --remote --cid=77" # be on wrong CID to avoid recording
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg\\&compression=0 --width=800 --height=450 --name.i420=axis0.i420 --name.argb=axis0.argb --skip.argb --remote --cid=77" # be on wrong CID to avoid recording
         runtime: runc
 
     video-h264-encoder-amd64:
@@ -83,4 +83,4 @@ services:
         ipc: "host"
         volumes:
         - /mnt/sdb1/data:/tmp
-        command: "--name=axis0.i420 --width=640 --height=480 --bitrate=4500000 --gop=10 --cid=102 --id=0"
+        command: "--name=axis0.i420 --width=800 --height=450 --bitrate=3000000 --gop=10 --cid=102 --id=0"
