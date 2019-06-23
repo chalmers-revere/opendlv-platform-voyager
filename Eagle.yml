@@ -37,6 +37,25 @@ services:
 
 
     ###########################################################################
+    # Raw CAN interfaces to the truck.
+    dlv-can-raw:
+        container_name: dlv-can-raw
+        image: canraw:uint64
+        cpuset: "2"
+        restart: always
+        network_mode: "host"
+        privileged: true
+        volumes:
+        - /mnt/sdb1/data/upload:/upload
+        working_dir: /upload
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can-channels=can1:1,can2:2,can3:3,can4:4,can5:5,can6:6 --remote --recsuffix=-can --cid=102"
+        runtime: runc
+
+
+    ###########################################################################
     # Axis camera including recording functionality with remote start/stop.
     dev-camera-axis0:
         container_name: dev-camera-axis0
