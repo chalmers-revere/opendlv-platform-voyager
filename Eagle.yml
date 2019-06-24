@@ -37,6 +37,22 @@ services:
 
 
     ###########################################################################
+    # CAN interface to monitor battery.
+    dlv-can-battery:
+        container_name: dlv-can-battery
+        image: chalmersrevere/opendlv-device-can-battery-amd64:v0.0.1
+        cpuset: "1"
+        restart: always
+        network_mode: "host"
+        privileged: true
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -1 /usr/bin/opendlv-device-can-battery --can=can7 --cid=102 --id=7"
+        runtime: runc
+
+
+    ###########################################################################
     # Raw CAN interfaces to the truck.
     dlv-can-raw:
         container_name: dlv-can-raw
@@ -66,5 +82,5 @@ services:
         volumes:
         - /mnt/sdb1/data/upload:/upload
         working_dir: /upload
-        command: "--url=rtsp://10.40.41.2/axis-media/media.amp\\?camera=1 --cid=102 --id=0 --client-port-udp-a=35000 --remote --recsuffix=-all"
+        command: "--url=rtsp://10.40.41.2/axis-media/media.amp\\?camera=1 --cid=102 --id=0 --client-port-udp-a=35000 --remote --recsuffix=-all-no-can"
         runtime: runc
