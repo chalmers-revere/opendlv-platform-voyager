@@ -158,7 +158,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074537 --width=2048 --height=1536 --fps=15 --name.i420=ptg-left.i420 --name.argb=ptg-left.argb --skip.argb --nocameratimestamp"
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074537 --width=2048 --height=1536 --fps=15 --name.i420=ptg-left.i420 --name.argb=ptg-left.argb --skip.argb"
         runtime: runc
 
     nvenc-h264-ll-rec-ptgrey-left:
@@ -198,7 +198,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074539 --width=2048 --height=1536 --fps=15 --name.i420=ptg-right.i420 --name.argb=ptg-right.argb --skip.argb --nocameratimestamp"
+        command: "nice -n -8 /usr/bin/opendlv-device-camera-spinnaker --camera=19074539 --width=2048 --height=1536 --fps=15 --name.i420=ptg-right.i420 --name.argb=ptg-right.argb --skip.argb"
         runtime: runc
 
     nvenc-h264-ll-rec-ptgrey-right:
