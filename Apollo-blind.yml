@@ -21,31 +21,17 @@ version: '2.3'
 # These services run on Apollo (Intel Core).
 services:
     ###########################################################################
-    # Relay cluon.data.RecorderCommand.
-    relay-recordercommand-105-106:
-        container_name: relay-recordercommand-105-106
-        image: chrberger/cluon-relay-multi:v0.0.4
-        cpuset: "2"
-        restart: always
-        network_mode: "host"
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -7 /usr/bin/cluon-relay --cid-from=105 --cid-to=106 --keep=11"
-        runtime: runc
-
-    ###########################################################################
     # Dump all containers from CID 106 on request.
     record-106:
         container_name: record-106
         image: chrberger/cluon-record-multi:v0.0.1
-        cpuset: "2"
+        cpuset: "1"
         restart: always
         network_mode: "host"
         volumes:
         - $HOME/recordings/upload:/recordings
         working_dir: /recordings
-        command: "--remote --recsuffix=-all --cid=106"
+        command: "--remote --recsuffix=-all-no-can --cid=106"
         runtime: runc
 
     ###########################################################################
@@ -53,7 +39,7 @@ services:
     dlv-can-peak:
         container_name: dlv-can-peak
         image: chalmersrevere/opendlv-device-gps-peak-multi:v0.0.8
-        cpuset: "1,3"
+        cpuset: "2"
         restart: always
         network_mode: "host"
         privileged: true
@@ -65,43 +51,20 @@ services:
 
     ###########################################################################
     # Raw CAN interfaces to the truck.
-    dlv-can-raw-1:
-        container_name: dlv-can-raw-1
-        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "1,3"
+    dlv-can-raw:
+        container_name: dlv-can-raw
+        image: canraw:uint64
+        cpuset: "3"
         restart: always
         network_mode: "host"
         privileged: true
+        volumes:
+        - $HOME/recordings/upload:/recordings
+        working_dir: /recordings
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can1 --cid=106 --id=1"
-        runtime: runc
-
-    dlv-can-raw-2:
-        container_name: dlv-can-raw-2
-        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "1,3"
-        restart: always
-        network_mode: "host"
-        privileged: true
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can2 --cid=106 --id=2"
-        runtime: runc
-
-    dlv-can-raw-3:
-        container_name: dlv-can-raw-3
-        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.2
-        cpuset: "1,3"
-        restart: always
-        network_mode: "host"
-        privileged: true
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can=can3 --cid=106 --id=3"
+        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can-channels=can1:1,can2:2,can3:3 --remote --recsuffix=-can --cid=106"
         runtime: runc
 
 #    ###########################################################################
@@ -181,6 +144,27 @@ services:
         command: "--name=ptg-left.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-left-lossless --remote --cid=106 --id=1"
         runtime: nvidia
 
+    qsv-vp9-ptgrey-left:
+        container_name: qsv-vp9-ptgrey-left
+        image: qsv-vp9-recorder:latest
+        depends_on:
+        - device-camera-ptgrey-amd64-left
+        cpuset: "6,7,8"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        - $HOME/recordings/lossy:/recordings
+        working_dir: /recordings
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-vp9-recorder --name=ptg-left.i420 --width=2048 --height=1536 --gop=10 --bitrate=30000 --recsuffix=-ptgrey-left-vp9 --remote --cid=106 --id=1"
+        runtime: runc
+
     ###########################################################################
     # Right PtGrey camera.
     device-camera-ptgrey-amd64-right:
@@ -220,3 +204,24 @@ services:
         working_dir: /recordings
         command: "--name=ptg-right.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-right-lossless --remote --cid=106 --id=2"
         runtime: nvidia
+
+    qsv-vp9-ptgrey-right:
+        container_name: qsv-vp9-ptgrey-right
+        image: qsv-vp9-recorder:latest
+        depends_on:
+        - device-camera-ptgrey-amd64-right
+        cpuset: "11,12,13"
+        devices:
+        - /dev/dri/renderD128
+        restart: always
+        network_mode: "host"
+        ipc: "host"
+        volumes:
+        - /mnt/Volume1/data:/tmp
+        - $HOME/recordings/lossy:/recordings
+        working_dir: /recordings
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -7 /usr/bin/video-qsv-vp9-recorder --name=ptg-right.i420 --width=2048 --height=1536 --gop=10 --bitrate=30000 --recsuffix=-ptgrey-right-vp9 --remote --cid=106 --id=2"
+        runtime: runc
