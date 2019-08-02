@@ -56,7 +56,7 @@ services:
     # Raw CAN interfaces to the truck.
     dlv-can-raw:
         container_name: dlv-can-raw
-        image: canraw:uint64
+        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.3
         cpuset: "2"
         restart: always
         network_mode: "host"
