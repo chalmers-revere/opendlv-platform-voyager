@@ -73,7 +73,7 @@ services:
         container_name: dlv-ptgrey-left
         #image: ptgrey:v5
         build:
-            context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git#v0.0.2
+            context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git#v0.0.3
             dockerfile: Dockerfile.amd64
         cpuset: "6,7,8"
         restart: always
@@ -134,7 +134,7 @@ services:
         container_name: dlv-ptgrey-right
         #image: ptgrey:v5
         build:
-            context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git#v0.0.2
+            context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git#v0.0.3
             dockerfile: Dockerfile.amd64
         cpuset: "11,12,13"
         restart: always
