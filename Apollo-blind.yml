@@ -112,7 +112,10 @@ services:
 
     qsv-vp9-ptgrey-left:
         container_name: qsv-vp9-ptgrey-left
-        image: qsv-vp9-recorder:latest
+        #image: qsv-vp9-recorder:latest
+        build:
+            context: https://github.com/chrberger/video-qsv-vp9-recorder.git#v0.0.1
+            dockerfile: Dockerfile.amd64
         depends_on:
         - device-camera-ptgrey-amd64-left
         cpuset: "6,7,8"
@@ -176,7 +179,10 @@ services:
 
     qsv-vp9-ptgrey-right:
         container_name: qsv-vp9-ptgrey-right
-        image: qsv-vp9-recorder:latest
+        #image: qsv-vp9-recorder:latest
+        build:
+            context: https://github.com/chrberger/video-qsv-vp9-recorder.git#v0.0.1
+            dockerfile: Dockerfile.amd64
         depends_on:
         - device-camera-ptgrey-amd64-right
         cpuset: "11,12,13"
