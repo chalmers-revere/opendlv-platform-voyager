@@ -53,7 +53,7 @@ services:
     # Raw CAN interfaces to the truck.
     dlv-can-raw:
         container_name: dlv-can-raw
-        image: canraw:uint64
+        image: chalmersrevere/opendlv-device-can-raw-multi:v0.0.3
         cpuset: "3"
         restart: always
         network_mode: "host"
@@ -67,51 +67,14 @@ services:
         command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can-channels=can1:1,can2:2,can3:3 --remote --recsuffix=-can --cid=106"
         runtime: runc
 
-#    ###########################################################################
-#    # Axis camera including recording functionality with remote start/stop.
-#    dev-camera-axis0:
-#        container_name: dev-camera-axis0
-#        image: chalmersrevere/opendlv-device-camera-mjpegoverhttp-multi:v0.0.3
-#        cpuset: "4"
-#        restart: always
-#        ipc: "host"
-#        network_mode: "host"
-#        volumes:
-#        - /mnt/Volume1/data:/tmp
-#        - $HOME/recordings/lossless:/recordings
-#        working_dir: /recordings
-#        cap_add:
-#        - SYS_NICE
-#        entrypoint: ""
-#        command: "nice -n -8 /usr/bin/opendlv-device-camera-mjpegoverhttp --url=http://10.40.41.2/axis-cgi/mjpg/video.cgi\\?channel=0\\&.mjpg\\&compression=0 --width=1280 --height=720 --name.i420=axis0.i420 --name.argb=axis0.argb --remote --recsuffix=-axis0-jpeg --skip.argb --cid=106 --id=0"
-#        runtime: runc
-#
-#    vp8-axis0:
-#        container_name: vp8-axis0
-#        image: vp9:v0.0.7
-#        #image: chalmersrevere/opendlv-video-vpx-encoder-multi:v0.0.6
-#        depends_on:
-#        - dev-camera-axis0
-#        cpuset: "5"
-#        restart: always
-#        ipc: "host"
-#        network_mode: "host"
-#        volumes:
-#        - /mnt/Volume1/data:/tmp
-#        cap_add:
-#        - SYS_NICE
-#        entrypoint: ""
-#        command: "nice -n -7 /usr/bin/opendlv-video-vpx-encoder --name=axis0.i420 --width=1280 --height=720 --vp8 --gop=10 --cpu_used=6 --bitrate=600000 --cid=106 --id=3"
-#        runtime: runc
-
     ###########################################################################
     # Left PtGrey camera.
     device-camera-ptgrey-amd64-left:
         container_name: dlv-ptgrey-left
-        image: ptgrey:v4
-        #build:
-        #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
-        #    dockerfile: Dockerfile.amd64
+        #image: ptgrey:v5
+        build:
+            context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git#v0.0.1
+            dockerfile: Dockerfile.amd64
         cpuset: "6,7,8"
         restart: always
         network_mode: "host"
@@ -169,10 +132,10 @@ services:
     # Right PtGrey camera.
     device-camera-ptgrey-amd64-right:
         container_name: dlv-ptgrey-right
-        image: ptgrey:v4
-        #build:
-        #    context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git
-        #    dockerfile: Dockerfile.amd64
+        #image: ptgrey:v5
+        build:
+            context: https://github.com/chalmers-revere/opendlv-device-camera-spinnaker.git#v0.0.1
+            dockerfile: Dockerfile.amd64
         cpuset: "11,12,13"
         restart: always
         network_mode: "host"
