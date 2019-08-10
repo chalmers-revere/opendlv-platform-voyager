@@ -104,8 +104,8 @@ services:
         volumes:
         - /mnt/Volume1/data:/tmp
         - $HOME/recordings/lossless:/recordings
-        - /usr/lib64/libnvcuvid.so.430.14:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.430.14
-        - /usr/lib64/libnvidia-encode.so.430.14:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.430.14
+        - /usr/lib64/libnvcuvid.so.430.40:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.430.40
+        - /usr/lib64/libnvidia-encode.so.430.40:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.430.40
         working_dir: /recordings
         command: "--name=ptg-left.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-left-lossless --remote --cid=106 --id=1"
         runtime: nvidia
@@ -171,8 +171,8 @@ services:
         volumes:
         - /mnt/Volume1/data:/tmp
         - $HOME/recordings/lossless:/recordings
-        - /usr/lib64/libnvcuvid.so.430.14:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.430.14
-        - /usr/lib64/libnvidia-encode.so.430.14:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.430.14
+        - /usr/lib64/libnvcuvid.so.430.40:/usr/lib/x86_64-linux-gnu/libnvcuvid.so.430.40
+        - /usr/lib64/libnvidia-encode.so.430.40:/usr/lib/x86_64-linux-gnu/libnvidia-encode.so.430.40
         working_dir: /recordings
         command: "--name=ptg-right.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-right-lossless --remote --cid=106 --id=2"
         runtime: nvidia
