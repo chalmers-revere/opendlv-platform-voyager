@@ -40,7 +40,7 @@ services:
     # CAN interface to monitor battery.
     dlv-can-battery:
         container_name: dlv-can-battery
-        image: chalmersrevere/opendlv-device-can-battery-amd64:v0.0.1
+        image: chalmersrevere/opendlv-device-can-battery-amd64:v0.0.2
         cpuset: "1"
         restart: always
         network_mode: "host"
