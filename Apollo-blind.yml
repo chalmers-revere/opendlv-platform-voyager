@@ -53,8 +53,8 @@ services:
         # vcan1 is PEAK GPS with no lat/lon/speed
 
     # Temporary fix to use data from Garmin
-    relay-from-91:
-        container_name: relay-from-91
+    relay-from-99:
+        container_name: relay-from-99
         image: chrberger/cluon-relay-multi:v0.0.4
         cpuset: "1"
         restart: always
@@ -62,7 +62,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -6 /usr/bin/cluon-relay --cid-from=91 --cid-to=106 --keep=19"
+        command: "nice -n -6 /usr/bin/cluon-relay --cid-from=99 --cid-to=106 --keep=19"
         runtime: runc
 
     ###########################################################################
