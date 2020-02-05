@@ -32,9 +32,23 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --can=can0 --cid=102 --id=0"
+#        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --can=can0 --cid=102 --id=0"
+        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --can=vcan1 --cid=102 --id=0"
         runtime: runc
+        # vcan1 is PEAK GPS with no lat/lon/speed
 
+    # Temporary fix to use data from Garmin
+    relay-from-91:
+        container_name: relay-from-91
+        image: chrberger/cluon-relay-multi:v0.0.4
+        cpuset: "1"
+        restart: always
+        network_mode: "host"
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -6 /usr/bin/cluon-relay --cid-from=91 --cid-to=102 --keep=19"
+        runtime: runc
 
     ###########################################################################
     # CAN interface to monitor battery.
