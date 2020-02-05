@@ -46,7 +46,23 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --cid=106 --can=can0"
+        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --cid=106 --can=vcan1"
+        #command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --cid=106 --can=can0"
+        runtime: runc
+
+        # vcan1 is PEAK GPS with no lat/lon/speed
+
+    # Temporary fix to use data from Garmin
+    relay-from-91:
+        container_name: relay-from-91
+        image: chrberger/cluon-relay-multi:v0.0.4
+        cpuset: "1"
+        restart: always
+        network_mode: "host"
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -6 /usr/bin/cluon-relay --cid-from=91 --cid-to=106 --keep=19"
         runtime: runc
 
     ###########################################################################
@@ -110,29 +126,29 @@ services:
         command: "--name=ptg-left.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-left-lossless --remote --cid=106 --id=1"
         runtime: nvidia
 
-    qsv-vp9-ptgrey-left:
-        container_name: qsv-vp9-ptgrey-left
-        #image: qsv-vp9-recorder:latest
-        build:
-            context: https://github.com/chrberger/video-qsv-vp9-recorder.git#v0.0.1
-            dockerfile: Dockerfile.amd64
-        depends_on:
-        - device-camera-ptgrey-amd64-left
-        cpuset: "6,7,8"
-        devices:
-        - /dev/dri/renderD128
-        restart: always
-        network_mode: "host"
-        ipc: "host"
-        volumes:
-        - /mnt/Volume1/data:/tmp
-        - $HOME/recordings/lossy:/recordings
-        working_dir: /recordings
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -7 /usr/bin/video-qsv-vp9-recorder --name=ptg-left.i420 --width=2048 --height=1536 --gop=10 --bitrate=30000 --recsuffix=-ptgrey-left-vp9 --remote --cid=106 --id=1"
-        runtime: runc
+#    qsv-vp9-ptgrey-left:
+#        container_name: qsv-vp9-ptgrey-left
+#        #image: qsv-vp9-recorder:latest
+#        build:
+#            context: https://github.com/chrberger/video-qsv-vp9-recorder.git#v0.0.1
+#            dockerfile: Dockerfile.amd64
+#        depends_on:
+#        - device-camera-ptgrey-amd64-left
+#        cpuset: "6,7,8"
+#        devices:
+#        - /dev/dri/renderD128
+#        restart: always
+#        network_mode: "host"
+#        ipc: "host"
+#        volumes:
+#        - /mnt/Volume1/data:/tmp
+#        - $HOME/recordings/lossy:/recordings
+#        working_dir: /recordings
+#        cap_add:
+#        - SYS_NICE
+#        entrypoint: ""
+#        command: "nice -n -7 /usr/bin/video-qsv-vp9-recorder --name=ptg-left.i420 --width=2048 --height=1536 --gop=10 --bitrate=30000 --recsuffix=-ptgrey-left-vp9 --remote --cid=106 --id=1"
+#        runtime: runc
 
     ###########################################################################
     # Right PtGrey camera.
@@ -177,26 +193,42 @@ services:
         command: "--name=ptg-right.i420 --width=2048 --height=1536 --recsuffix=-ptgrey-right-lossless --remote --cid=106 --id=2"
         runtime: nvidia
 
-    qsv-vp9-ptgrey-right:
-        container_name: qsv-vp9-ptgrey-right
-        #image: qsv-vp9-recorder:latest
-        build:
-            context: https://github.com/chrberger/video-qsv-vp9-recorder.git#v0.0.1
-            dockerfile: Dockerfile.amd64
-        depends_on:
-        - device-camera-ptgrey-amd64-right
-        cpuset: "11,12,13"
-        devices:
-        - /dev/dri/renderD128
+#    qsv-vp9-ptgrey-right:
+#        container_name: qsv-vp9-ptgrey-right
+#        #image: qsv-vp9-recorder:latest
+#        build:
+#            context: https://github.com/chrberger/video-qsv-vp9-recorder.git#v0.0.1
+#            dockerfile: Dockerfile.amd64
+#        depends_on:
+#        - device-camera-ptgrey-amd64-right
+#        cpuset: "11,12,13"
+#        devices:
+#        - /dev/dri/renderD128
+#        restart: always
+#        network_mode: "host"
+#        ipc: "host"
+#        volumes:
+#        - /mnt/Volume1/data:/tmp
+#        - $HOME/recordings/lossy:/recordings
+#        working_dir: /recordings
+#        cap_add:
+#        - SYS_NICE
+#        entrypoint: ""
+#        command: "nice -n -7 /usr/bin/video-qsv-vp9-recorder --name=ptg-right.i420 --width=2048 --height=1536 --gop=10 --bitrate=30000 --recsuffix=-ptgrey-right-vp9 --remote --cid=106 --id=2"
+#        runtime: runc
+
+
+    ###########################################################################
+    # Axis camera including recording functionality with remote start/stop.
+    dev-camera-axis0:
+        container_name: dev-camera-axis0
+        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.3
+        cpuset: "2"
         restart: always
         network_mode: "host"
-        ipc: "host"
         volumes:
-        - /mnt/Volume1/data:/tmp
         - $HOME/recordings/lossy:/recordings
         working_dir: /recordings
-        cap_add:
-        - SYS_NICE
-        entrypoint: ""
-        command: "nice -n -7 /usr/bin/video-qsv-vp9-recorder --name=ptg-right.i420 --width=2048 --height=1536 --gop=10 --bitrate=30000 --recsuffix=-ptgrey-right-vp9 --remote --cid=106 --id=2"
+        command: "--url=rtsp://10.40.41.2/axis-media/media.amp\\?camera=1 --cid=106 --id=0 --client-port-udp-a=35000 --remote --recsuffix=-axis"
         runtime: runc
+
