@@ -32,15 +32,29 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --can=can0 --cid=102 --id=0"
+#        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --can=can0 --cid=102 --id=0"
+        command: "nice -n -1 /usr/bin/opendlv-device-gps-peak --can=vcan1 --cid=102 --id=0"
         runtime: runc
+        # vcan1 is PEAK GPS with no lat/lon/speed
 
+    # Temporary fix to use data from Garmin
+    relay-from-91:
+        container_name: relay-from-91
+        image: chrberger/cluon-relay-multi:v0.0.4
+        cpuset: "1"
+        restart: always
+        network_mode: "host"
+        cap_add:
+        - SYS_NICE
+        entrypoint: ""
+        command: "nice -n -6 /usr/bin/cluon-relay --cid-from=91 --cid-to=102 --keep=19"
+        runtime: runc
 
     ###########################################################################
     # CAN interface to monitor battery.
     dlv-can-battery:
         container_name: dlv-can-battery
-        image: chalmersrevere/opendlv-device-can-battery-amd64:v0.0.1
+        image: chalmersrevere/opendlv-device-can-battery-amd64:v0.0.2
         cpuset: "1"
         restart: always
         network_mode: "host"
@@ -70,6 +84,19 @@ services:
         command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can-channels=can1:1,can2:2,can3:3,can4:4,can5:5,can6:6 --remote --recsuffix=-can --cid=102"
         runtime: runc
 
+    record-all:
+        container_name: record-all
+        image: chrberger/cluon-amd64:latest
+        cpuset: "0"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data/upload:/upload
+        working_dir: /upload
+        cap_add:
+        - SYS_NICE
+        command: sh -c "nice -n -7 cluon-OD4toStdout --cid=102 > `date +%Y-%m-%d_%H%M%S-noaxis-nocan.rec`"
+        runtime: runc
 
     ###########################################################################
     # Axis camera including recording functionality with remote start/stop.
@@ -82,5 +109,31 @@ services:
         volumes:
         - /mnt/sdb1/data/upload:/upload
         working_dir: /upload
-        command: "--url=rtsp://10.40.41.2/axis-media/media.amp\\?camera=1 --cid=102 --id=0 --client-port-udp-a=35000 --remote --recsuffix=-all-no-can"
+        command: "--url=rtsp://10.40.41.2/axis-media/media.amp\\?camera=1 --cid=103 --id=0 --client-port-udp-a=35000 --remote --recsuffix=-axis-front"
+        runtime: runc
+
+    # Axis Rear/Left camera including recording functionality with remote start/stop.
+    dev-camera-axis1:
+        container_name: dev-camera-axis1
+        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.3
+        cpuset: "3"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data/upload:/upload
+        working_dir: /upload
+        command: "--url=rtsp://10.40.10.28/axis-media/media.amp\\?camera=1 --cid=103 --id=1 --client-port-udp-a=35010 --remote --recsuffix=-axis-rear-left"
+        runtime: runc
+
+    # Axis Rear/Right camera including recording functionality with remote start/stop.
+    dev-camera-axis2:
+        container_name: dev-camera-axis2
+        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.3
+        cpuset: "3"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data/upload:/upload
+        working_dir: /upload
+        command: "--url=rtsp://10.40.10.28/axis-media/media.amp\\?camera=2 --cid=103 --id=2 --client-port-udp-a=35020 --remote --recsuffix=-axis-rear-right"
         runtime: runc
