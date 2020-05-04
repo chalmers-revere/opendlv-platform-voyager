@@ -98,3 +98,42 @@ services:
         command: sh -c "nice -n -7 cluon-OD4toStdout --cid=102 > `date +%Y-%m-%d_%H%M%S-noaxis-nocan.rec`"
         runtime: runc
 
+    ###########################################################################
+    # Axis camera including recording functionality with remote start/stop.
+    dev-camera-axis0:
+        container_name: dev-camera-axis0
+        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.3
+        cpuset: "3"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data/upload:/upload
+        working_dir: /upload
+        command: "--url=rtsp://10.40.41.2/axis-media/media.amp\\?camera=1 --cid=103 --id=0 --client-port-udp-a=35000 --remote --recsuffix=-axis-front"
+        runtime: runc
+
+    # Axis Rear/Left camera including recording functionality with remote start/stop.
+    dev-camera-axis1:
+        container_name: dev-camera-axis1
+        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.3
+        cpuset: "3"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data/upload:/upload
+        working_dir: /upload
+        command: "--url=rtsp://10.40.10.28/axis-media/media.amp\\?camera=1 --cid=103 --id=1 --client-port-udp-a=35010 --remote --recsuffix=-axis-rear-left"
+        runtime: runc
+
+    # Axis Rear/Right camera including recording functionality with remote start/stop.
+    dev-camera-axis2:
+        container_name: dev-camera-axis2
+        image: chalmersrevere/opendlv-device-camera-rtp-amd64:v0.0.3
+        cpuset: "3"
+        restart: always
+        network_mode: "host"
+        volumes:
+        - /mnt/sdb1/data/upload:/upload
+        working_dir: /upload
+        command: "--url=rtsp://10.40.10.28/axis-media/media.amp\\?camera=2 --cid=103 --id=2 --client-port-udp-a=35020 --remote --recsuffix=-axis-rear-right"
+        runtime: runc
