@@ -146,6 +146,6 @@ services:
         cpuset: "3"
         restart: always
         network_mode: "host"
-        command: "--cid=102 --cidout=103 --can=can1 --timeout=4500 --delay=900"
+        command: "--cid=102 --cidout=103 --can=can5 --timeout=4500 --delay=900"
         runtime: runc
 
