@@ -24,7 +24,7 @@ services:
     # CAN interface to receive GPS/IMU data.
     dlv-can-peak:
         container_name: dlv-can-peak
-        image: chalmersrevere/opendlv-device-gps-peak-amd64:v2.0.0
+        image: registry.git.chalmers.se/chalmers-revere/opendlv-device-gps-peak:v3.0.0
         cpuset: "1"
         restart: always
         network_mode: "host"
@@ -81,7 +81,7 @@ services:
         cap_add:
         - SYS_NICE
         entrypoint: ""
-        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can-channels=can1:1,can2:2,can3:3,can4:4,can5:5,can6:6 --remote --recsuffix=-can --cid=102"
+        command: "nice -n -1 /usr/bin/opendlv-device-can-raw --can-channels=can1:1,can2:2,can3:3,can4:4,can5:5,can6:6 --remote --recsuffix=-can --cid=103"
         runtime: runc
 
     record-all:
