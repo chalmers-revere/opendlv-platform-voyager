@@ -38,7 +38,7 @@ services:
     # CAN interface to receive GPS/IMU data.
     dlv-can-peak:
         container_name: dlv-can-peak
-        image: chalmersrevere/opendlv-device-gps-peak-amd64:v2.0.0
+        image: registry.git.chalmers.se/chalmers-revere/opendlv-device-gps-peak:v3.0.0
         cpuset: "2"
         restart: always
         network_mode: "host"
